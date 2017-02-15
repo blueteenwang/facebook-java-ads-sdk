@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2015-present, Facebook, Inc. All rights reserved.
- *
+ * <p>
  * You are hereby granted a non-exclusive, worldwide, royalty-free license to
  * use, copy, modify, and distribute this software in source code or binary
  * form for use in connection with the web services and APIs provided by
  * Facebook.
- *
+ * <p>
  * As with any software that integrates with the Facebook platform, your use
  * of this software is subject to the Facebook Developer Principles and
  * Policies [http://developers.facebook.com/policy/]. This copyright notice
  * shall be included in all copies or substantial portions of the software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -18,165 +18,160 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
- *
  */
 package com.facebook.ads.sdk;
 
-import com.google.gson.JsonObject;
+import com.facebook.ads.sdk.APIException.MalformedResponseException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-
-import com.facebook.ads.sdk.APIException.MalformedResponseException;
 
 public class APINode implements APIResponse {
 
-  protected APIContext context = null;
-  protected String rawValue = null;
+    protected APIContext context = null;
+    protected String rawValue = null;
 
-  public static APINode loadJSON(String json, APIContext context) {
-    APINode result = null;
-    result = new APINode();
-    result.context = context;
-    result.rawValue = json;
-    return result;
-  }
-
-  public APIContext getContext() {
-    return context;
-  }
-
-  public void setContext(APIContext context) {
-    this.context = context;
-  }
-
-  public String toString() {
-    return rawValue;
-  }
-
-  public String getId() {
-    try {
-      JsonParser parser = new JsonParser();
-      return parser.parse(rawValue).getAsJsonObject().get("id").getAsString();
-    } catch (Exception e) {
-      return null;
+    public static APINode loadJSON(String json, APIContext context) {
+        APINode result = null;
+        result = new APINode();
+        result.context = context;
+        result.rawValue = json;
+        return result;
     }
-  };
 
-  public String getRawValue() {
-    return rawValue;
-  }
+    public static APINodeList parseResponse(String json, APIContext context, APIRequest<APINode> request) throws MalformedResponseException {
+        APINodeList<APINode> nodes = new APINodeList<APINode>(request, json);
+        JsonArray arr;
+        JsonObject obj;
+        JsonParser parser = new JsonParser();
+        Exception exception = null;
+        try {
+            JsonElement result = parser.parse(json);
+            if (result.isJsonArray()) {
+                // First, check if it's a pure JSON Array
+                arr = result.getAsJsonArray();
+                for (int i = 0; i < arr.size(); i++) {
+                    nodes.add(loadJSON(arr.get(i).getAsJsonObject().toString(), context));
+                }
+                return nodes;
+            } else if (result.isJsonObject()) {
+                obj = result.getAsJsonObject();
+                if (obj.has("data")) {
+                    if (obj.has("paging")) {
+                        JsonObject paging = obj.get("paging").getAsJsonObject();
+                        nodes.setPaging(paging);
+                    }
 
-  @Override
-  public String getRawResponse() {
-    return rawValue;
-  }
+                    if (obj.get("data").isJsonArray()) {
+                        // Second, check if it's a JSON array with "data"
+                        arr = obj.get("data").getAsJsonArray();
+                        for (int i = 0; i < arr.size(); i++) {
+                            nodes.add(loadJSON(arr.get(i).getAsJsonObject().toString(), context));
+                        }
+                    } else if (obj.get("data").isJsonObject()) {
+                        // Third, check if it's a JSON object with "data"
+                        obj = obj.get("data").getAsJsonObject();
+                        nodes.add(loadJSON(obj.toString(), context));
+                    }
+                    return nodes;
+                } else if (obj.has("images")) {
+                    // Fourth, check if it's a map of image objects
+                    obj = obj.get("images").getAsJsonObject();
+                    for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                        nodes.add(loadJSON(entry.getValue().toString(), context));
+                    }
+                    return nodes;
+                } else {
+                    // Fifth, check if it's an array of objects indexed by id
+                    boolean isIdIndexedArray = true;
+                    for (Map.Entry entry : obj.entrySet()) {
+                        String key = (String) entry.getKey();
+                        if (key.equals("__fb_trace_id__")) {
+                            continue;
+                        }
+                        JsonElement value = (JsonElement) entry.getValue();
+                        if (
+                                value != null &&
+                                        value.isJsonObject() &&
+                                        value.getAsJsonObject().has("id") &&
+                                        value.getAsJsonObject().get("id") != null &&
+                                        value.getAsJsonObject().get("id").getAsString().equals(key)
+                                ) {
+                            nodes.add(loadJSON(value.toString(), context));
+                        } else {
+                            isIdIndexedArray = false;
+                            break;
+                        }
+                    }
+                    if (isIdIndexedArray) {
+                        return nodes;
+                    }
 
-  @Override
-  public JsonObject getRawResponseAsJsonObject() {
-    JsonParser parser = new JsonParser();
-    try {
-      return parser.parse(rawValue).getAsJsonObject();
-    } catch (Exception e) {
-      return null;
-    }
-  }
-
-  @Override
-  public APINode head() {
-    return this;
-  }
-
-  public static APINodeList parseResponse(String json, APIContext context, APIRequest<APINode> request) throws MalformedResponseException{
-    APINodeList<APINode> nodes = new APINodeList<APINode>(request, json);
-    JsonArray arr;
-    JsonObject obj;
-    JsonParser parser = new JsonParser();
-    Exception exception = null;
-    try{
-      JsonElement result = parser.parse(json);
-      if (result.isJsonArray()) {
-        // First, check if it's a pure JSON Array
-        arr = result.getAsJsonArray();
-        for (int i = 0; i < arr.size(); i++) {
-          nodes.add(loadJSON(arr.get(i).getAsJsonObject().toString(), context));
-        };
-        return nodes;
-      } else if (result.isJsonObject()) {
-        obj = result.getAsJsonObject();
-        if (obj.has("data")) {
-          if (obj.has("paging")) {
-            JsonObject paging = obj.get("paging").getAsJsonObject().get("cursors").getAsJsonObject();
-            nodes.setPaging(paging.get("before").getAsString(), paging.get("after").getAsString());
-          }
-
-          if (obj.get("data").isJsonArray()) {
-            // Second, check if it's a JSON array with "data"
-            arr = obj.get("data").getAsJsonArray();
-            for (int i = 0; i < arr.size(); i++) {
-              nodes.add(loadJSON(arr.get(i).getAsJsonObject().toString(), context));
-            };
-          } else if (obj.get("data").isJsonObject()) {
-            // Third, check if it's a JSON object with "data"
-            obj = obj.get("data").getAsJsonObject();
-            nodes.add(loadJSON(obj.toString(), context));
-          }
-          return nodes;
-        } else if (obj.has("images")) {
-          // Fourth, check if it's a map of image objects
-          obj = obj.get("images").getAsJsonObject();
-          for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-              nodes.add(loadJSON(entry.getValue().toString(), context));
-          }
-          return nodes;
-        } else {
-          // Fifth, check if it's an array of objects indexed by id
-          boolean isIdIndexedArray = true;
-          for (Map.Entry entry : obj.entrySet()) {
-            String key = (String) entry.getKey();
-            if (key.equals("__fb_trace_id__")) {
-              continue;
+                    // Sixth, check if it's pure JsonObject
+                    nodes.clear();
+                    nodes.add(loadJSON(json, context));
+                    return nodes;
+                }
             }
-            JsonElement value = (JsonElement) entry.getValue();
-            if (
-              value != null &&
-              value.isJsonObject() &&
-              value.getAsJsonObject().has("id") &&
-              value.getAsJsonObject().get("id") != null &&
-              value.getAsJsonObject().get("id").getAsString().equals(key)
-            ) {
-              nodes.add(loadJSON(value.toString(), context));
-            } else {
-              isIdIndexedArray = false;
-              break;
-            }
-          }
-          if (isIdIndexedArray) {
-            return nodes;
-          }
-
-          // Sixth, check if it's pure JsonObject
-          nodes.clear();
-          nodes.add(loadJSON(json, context));
-          return nodes;
+        } catch (Exception e) {
+            exception = e;
         }
-      }
-    } catch (Exception e) {
-      exception = e;
+        throw new MalformedResponseException(
+                "Invalid response string: " + json,
+                exception
+        );
     }
-    throw new MalformedResponseException(
-      "Invalid response string: " + json,
-      exception
-    );
-  }
 
-  @Override
-  public APIException getException() {
-    return null;
-  }
+    public APIContext getContext() {
+        return context;
+    }
+
+    public void setContext(APIContext context) {
+        this.context = context;
+    }
+
+    public String toString() {
+        return rawValue;
+    }
+
+    public String getId() {
+        try {
+            JsonParser parser = new JsonParser();
+            return parser.parse(rawValue).getAsJsonObject().get("id").getAsString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String getRawValue() {
+        return rawValue;
+    }
+
+    @Override
+    public String getRawResponse() {
+        return rawValue;
+    }
+
+    @Override
+    public JsonObject getRawResponseAsJsonObject() {
+        JsonParser parser = new JsonParser();
+        try {
+            return parser.parse(rawValue).getAsJsonObject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public APINode head() {
+        return this;
+    }
+
+    @Override
+    public APIException getException() {
+        return null;
+    }
 }
