@@ -34,13 +34,13 @@ import java.util.Map;
 
 /**
  * This class is auto-genereated.
- *
+ * <p>
  * For any issues or feature requests related to this class, please let us know
  * on github and we'll fix in our codegen framework. We'll not be able to accept
  * pull request for this class.
- *
  */
 public class ProductItem extends APINode {
+    protected static Gson gson = null;
     @SerializedName("additional_image_urls")
     private List<String> mAdditionalImageUrls = null;
     @SerializedName("age_group")
@@ -129,7 +129,8 @@ public class ProductItem extends APINode {
     private String mUrl = null;
     @SerializedName("visibility")
     private EnumVisibility mVisibility = null;
-    protected static Gson gson = null;
+    @SerializedName("product_catalog")
+    private ProductCatalog mProductCatalog = null;
 
     ProductItem() {
     }
@@ -141,12 +142,6 @@ public class ProductItem extends APINode {
     public ProductItem(String id, APIContext context) {
         this.mId = id;
         this.context = context;
-    }
-
-    public ProductItem fetch() throws APIException {
-        ProductItem newInstance = fetchById(this.getPrefixedId().toString(), this.context);
-        this.copyFrom(newInstance);
-        return this;
     }
 
     public static ProductItem fetchById(Long id, APIContext context) throws APIException {
@@ -168,14 +163,6 @@ public class ProductItem extends APINode {
                         .requestFields(fields)
                         .execute()
         );
-    }
-
-    private String getPrefixedId() {
-        return getId();
-    }
-
-    public String getId() {
-        return getFieldId().toString();
     }
 
     public static ProductItem loadJSON(String json, APIContext context) {
@@ -298,6 +285,41 @@ public class ProductItem extends APINode {
         );
     }
 
+    synchronized /*package*/ static Gson getGson() {
+        if (gson != null) {
+            return gson;
+        } else {
+            gson = new GsonBuilder()
+                    .excludeFieldsWithModifiers(Modifier.STATIC)
+                    .excludeFieldsWithModifiers(Modifier.PROTECTED)
+                    .disableHtmlEscaping()
+                    .create();
+        }
+        return gson;
+    }
+
+    public static APIRequest.ResponseParser<ProductItem> getParser() {
+        return new APIRequest.ResponseParser<ProductItem>() {
+            public APINodeList<ProductItem> parseResponse(String response, APIContext context, APIRequest<ProductItem> request) throws MalformedResponseException {
+                return ProductItem.parseResponse(response, context, request);
+            }
+        };
+    }
+
+    public ProductItem fetch() throws APIException {
+        ProductItem newInstance = fetchById(this.getPrefixedId().toString(), this.context);
+        this.copyFrom(newInstance);
+        return this;
+    }
+
+    private String getPrefixedId() {
+        return getId();
+    }
+
+    public String getId() {
+        return getFieldId().toString();
+    }
+
     @Override
     public APIContext getContext() {
         return context;
@@ -328,7 +350,6 @@ public class ProductItem extends APINode {
     public APIRequestUpdate update() {
         return new APIRequestUpdate(this.getPrefixedId().toString(), context);
     }
-
 
     public List<String> getFieldAdditionalImageUrls() {
         return mAdditionalImageUrls;
@@ -415,6 +436,10 @@ public class ProductItem extends APINode {
 
     public String getFieldId() {
         return mId;
+    }
+
+    public ProductCatalog getFieldProductCatalog() {
+        return this.mProductCatalog;
     }
 
     public String getFieldImageUrl() {
@@ -512,19 +537,215 @@ public class ProductItem extends APINode {
         return mVisibility;
     }
 
+    public ProductItem copyFrom(ProductItem instance) {
+        this.mAdditionalImageUrls = instance.mAdditionalImageUrls;
+        this.mAgeGroup = instance.mAgeGroup;
+        this.mApplinks = instance.mApplinks;
+        this.mAvailability = instance.mAvailability;
+        this.mBrand = instance.mBrand;
+        this.mCategory = instance.mCategory;
+        this.mColor = instance.mColor;
+        this.mCommerceInsights = instance.mCommerceInsights;
+        this.mCondition = instance.mCondition;
+        this.mCurrency = instance.mCurrency;
+        this.mCustomData = instance.mCustomData;
+        this.mCustomLabel0 = instance.mCustomLabel0;
+        this.mCustomLabel1 = instance.mCustomLabel1;
+        this.mCustomLabel2 = instance.mCustomLabel2;
+        this.mCustomLabel3 = instance.mCustomLabel3;
+        this.mCustomLabel4 = instance.mCustomLabel4;
+        this.mDescription = instance.mDescription;
+        this.mExpirationDate = instance.mExpirationDate;
+        this.mGender = instance.mGender;
+        this.mGtin = instance.mGtin;
+        this.mId = instance.mId;
+        this.mImageUrl = instance.mImageUrl;
+        this.mManufacturerPartNumber = instance.mManufacturerPartNumber;
+        this.mMaterial = instance.mMaterial;
+        this.mName = instance.mName;
+        this.mOrderingIndex = instance.mOrderingIndex;
+        this.mPattern = instance.mPattern;
+        this.mPrice = instance.mPrice;
+        this.mProductFeed = instance.mProductFeed;
+        this.mProductType = instance.mProductType;
+        this.mRetailerId = instance.mRetailerId;
+        this.mRetailerProductGroupId = instance.mRetailerProductGroupId;
+        this.mReviewRejectionReasons = instance.mReviewRejectionReasons;
+        this.mReviewStatus = instance.mReviewStatus;
+        this.mSalePrice = instance.mSalePrice;
+        this.mSalePriceEndDate = instance.mSalePriceEndDate;
+        this.mSalePriceStartDate = instance.mSalePriceStartDate;
+        this.mShippingWeightUnit = instance.mShippingWeightUnit;
+        this.mShippingWeightValue = instance.mShippingWeightValue;
+        this.mShortDescription = instance.mShortDescription;
+        this.mSize = instance.mSize;
+        this.mStartDate = instance.mStartDate;
+        this.mUrl = instance.mUrl;
+        this.mVisibility = instance.mVisibility;
+        this.context = instance.context;
+        this.rawValue = instance.rawValue;
+        return this;
+    }
+
+    public static enum EnumAgeGroup {
+        @SerializedName("kids")
+        VALUE_KIDS("kids"),
+        @SerializedName("adult")
+        VALUE_ADULT("adult"),
+        @SerializedName("infant")
+        VALUE_INFANT("infant"),
+        @SerializedName("toddler")
+        VALUE_TODDLER("toddler"),
+        @SerializedName("newborn")
+        VALUE_NEWBORN("newborn"),
+        NULL(null);
+
+        private String value;
+
+        private EnumAgeGroup(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumAvailability {
+        @SerializedName("in stock")
+        VALUE_IN_STOCK("in stock"),
+        @SerializedName("out of stock")
+        VALUE_OUT_OF_STOCK("out of stock"),
+        @SerializedName("preorder")
+        VALUE_PREORDER("preorder"),
+        @SerializedName("available for order")
+        VALUE_AVAILABLE_FOR_ORDER("available for order"),
+        @SerializedName("discontinued")
+        VALUE_DISCONTINUED("discontinued"),
+        NULL(null);
+
+        private String value;
+
+        private EnumAvailability(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumCondition {
+        @SerializedName("new")
+        VALUE_NEW("new"),
+        @SerializedName("refurbished")
+        VALUE_REFURBISHED("refurbished"),
+        @SerializedName("used")
+        VALUE_USED("used"),
+        NULL(null);
+
+        private String value;
+
+        private EnumCondition(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumGender {
+        @SerializedName("female")
+        VALUE_FEMALE("female"),
+        @SerializedName("male")
+        VALUE_MALE("male"),
+        @SerializedName("unisex")
+        VALUE_UNISEX("unisex"),
+        NULL(null);
+
+        private String value;
+
+        private EnumGender(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumReviewStatus {
+        @SerializedName("pending")
+        VALUE_PENDING("pending"),
+        @SerializedName("rejected")
+        VALUE_REJECTED("rejected"),
+        @SerializedName("approved")
+        VALUE_APPROVED("approved"),
+        NULL(null);
+
+        private String value;
+
+        private EnumReviewStatus(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumShippingWeightUnit {
+        @SerializedName("lb")
+        VALUE_LB("lb"),
+        @SerializedName("oz")
+        VALUE_OZ("oz"),
+        @SerializedName("g")
+        VALUE_G("g"),
+        @SerializedName("kg")
+        VALUE_KG("kg"),
+        NULL(null);
+
+        private String value;
+
+        private EnumShippingWeightUnit(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumVisibility {
+        @SerializedName("staging")
+        VALUE_STAGING("staging"),
+        @SerializedName("published")
+        VALUE_PUBLISHED("published"),
+        NULL(null);
+
+        private String value;
+
+        private EnumVisibility(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 
     public static class APIRequestGetProductSets extends APIRequest<ProductSet> {
 
-        APINodeList<ProductSet> lastResponse = null;
-
-        @Override
-        public APINodeList<ProductSet> getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
         };
-
         public static final String[] FIELDS = {
                 "auto_creation_url",
                 "filter",
@@ -533,6 +754,16 @@ public class ProductItem extends APINode {
                 "product_catalog",
                 "product_count",
         };
+        APINodeList<ProductSet> lastResponse = null;
+
+        public APIRequestGetProductSets(String nodeId, APIContext context) {
+            super(context, nodeId, "/product_sets", "GET", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public APINodeList<ProductSet> getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public APINodeList<ProductSet> parseResponse(String response) throws APIException {
@@ -548,10 +779,6 @@ public class ProductItem extends APINode {
         public APINodeList<ProductSet> execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGetProductSets(String nodeId, APIContext context) {
-            super(context, nodeId, "/product_sets", "GET", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -660,18 +887,20 @@ public class ProductItem extends APINode {
 
     public static class APIRequestDelete extends APIRequest<APINode> {
 
+        public static final String[] PARAMS = {
+        };
+        public static final String[] FIELDS = {
+        };
         APINode lastResponse = null;
+
+        public APIRequestDelete(String nodeId, APIContext context) {
+            super(context, nodeId, "/", "DELETE", Arrays.asList(PARAMS));
+        }
 
         @Override
         public APINode getLastResponse() {
             return lastResponse;
         }
-
-        public static final String[] PARAMS = {
-        };
-
-        public static final String[] FIELDS = {
-        };
 
         @Override
         public APINode parseResponse(String response) throws APIException {
@@ -687,10 +916,6 @@ public class ProductItem extends APINode {
         public APINode execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestDelete(String nodeId, APIContext context) {
-            super(context, nodeId, "/", "DELETE", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -746,18 +971,10 @@ public class ProductItem extends APINode {
 
     public static class APIRequestGet extends APIRequest<ProductItem> {
 
-        ProductItem lastResponse = null;
-
-        @Override
-        public ProductItem getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "image_height",
                 "image_width",
         };
-
         public static final String[] FIELDS = {
                 "additional_image_urls",
                 "age_group",
@@ -804,6 +1021,16 @@ public class ProductItem extends APINode {
                 "url",
                 "visibility",
         };
+        ProductItem lastResponse = null;
+
+        public APIRequestGet(String nodeId, APIContext context) {
+            super(context, nodeId, "/", "GET", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public ProductItem getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public ProductItem parseResponse(String response) throws APIException {
@@ -819,10 +1046,6 @@ public class ProductItem extends APINode {
         public ProductItem execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGet(String nodeId, APIContext context) {
-            super(context, nodeId, "/", "GET", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -1293,13 +1516,6 @@ public class ProductItem extends APINode {
 
     public static class APIRequestUpdate extends APIRequest<ProductItem> {
 
-        ProductItem lastResponse = null;
-
-        @Override
-        public ProductItem getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "additional_image_urls",
                 "android_app_name",
@@ -1352,9 +1568,18 @@ public class ProductItem extends APINode {
                 "windows_phone_app_name",
                 "windows_phone_url",
         };
-
         public static final String[] FIELDS = {
         };
+        ProductItem lastResponse = null;
+
+        public APIRequestUpdate(String nodeId, APIContext context) {
+            super(context, nodeId, "/", "POST", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public ProductItem getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public ProductItem parseResponse(String response) throws APIException {
@@ -1370,10 +1595,6 @@ public class ProductItem extends APINode {
         public ProductItem execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestUpdate(String nodeId, APIContext context) {
-            super(context, nodeId, "/", "POST", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -1745,232 +1966,5 @@ public class ProductItem extends APINode {
             return this;
         }
 
-    }
-
-    public static enum EnumAgeGroup {
-        @SerializedName("kids")
-        VALUE_KIDS("kids"),
-        @SerializedName("adult")
-        VALUE_ADULT("adult"),
-        @SerializedName("infant")
-        VALUE_INFANT("infant"),
-        @SerializedName("toddler")
-        VALUE_TODDLER("toddler"),
-        @SerializedName("newborn")
-        VALUE_NEWBORN("newborn"),
-        NULL(null);
-
-        private String value;
-
-        private EnumAgeGroup(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumAvailability {
-        @SerializedName("in stock")
-        VALUE_IN_STOCK("in stock"),
-        @SerializedName("out of stock")
-        VALUE_OUT_OF_STOCK("out of stock"),
-        @SerializedName("preorder")
-        VALUE_PREORDER("preorder"),
-        @SerializedName("available for order")
-        VALUE_AVAILABLE_FOR_ORDER("available for order"),
-        @SerializedName("discontinued")
-        VALUE_DISCONTINUED("discontinued"),
-        NULL(null);
-
-        private String value;
-
-        private EnumAvailability(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumCondition {
-        @SerializedName("new")
-        VALUE_NEW("new"),
-        @SerializedName("refurbished")
-        VALUE_REFURBISHED("refurbished"),
-        @SerializedName("used")
-        VALUE_USED("used"),
-        NULL(null);
-
-        private String value;
-
-        private EnumCondition(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumGender {
-        @SerializedName("female")
-        VALUE_FEMALE("female"),
-        @SerializedName("male")
-        VALUE_MALE("male"),
-        @SerializedName("unisex")
-        VALUE_UNISEX("unisex"),
-        NULL(null);
-
-        private String value;
-
-        private EnumGender(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumReviewStatus {
-        @SerializedName("pending")
-        VALUE_PENDING("pending"),
-        @SerializedName("rejected")
-        VALUE_REJECTED("rejected"),
-        @SerializedName("approved")
-        VALUE_APPROVED("approved"),
-        NULL(null);
-
-        private String value;
-
-        private EnumReviewStatus(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumShippingWeightUnit {
-        @SerializedName("lb")
-        VALUE_LB("lb"),
-        @SerializedName("oz")
-        VALUE_OZ("oz"),
-        @SerializedName("g")
-        VALUE_G("g"),
-        @SerializedName("kg")
-        VALUE_KG("kg"),
-        NULL(null);
-
-        private String value;
-
-        private EnumShippingWeightUnit(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumVisibility {
-        @SerializedName("staging")
-        VALUE_STAGING("staging"),
-        @SerializedName("published")
-        VALUE_PUBLISHED("published"),
-        NULL(null);
-
-        private String value;
-
-        private EnumVisibility(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-
-    synchronized /*package*/ static Gson getGson() {
-        if (gson != null) {
-            return gson;
-        } else {
-            gson = new GsonBuilder()
-                    .excludeFieldsWithModifiers(Modifier.STATIC)
-                    .excludeFieldsWithModifiers(Modifier.PROTECTED)
-                    .disableHtmlEscaping()
-                    .create();
-        }
-        return gson;
-    }
-
-    public ProductItem copyFrom(ProductItem instance) {
-        this.mAdditionalImageUrls = instance.mAdditionalImageUrls;
-        this.mAgeGroup = instance.mAgeGroup;
-        this.mApplinks = instance.mApplinks;
-        this.mAvailability = instance.mAvailability;
-        this.mBrand = instance.mBrand;
-        this.mCategory = instance.mCategory;
-        this.mColor = instance.mColor;
-        this.mCommerceInsights = instance.mCommerceInsights;
-        this.mCondition = instance.mCondition;
-        this.mCurrency = instance.mCurrency;
-        this.mCustomData = instance.mCustomData;
-        this.mCustomLabel0 = instance.mCustomLabel0;
-        this.mCustomLabel1 = instance.mCustomLabel1;
-        this.mCustomLabel2 = instance.mCustomLabel2;
-        this.mCustomLabel3 = instance.mCustomLabel3;
-        this.mCustomLabel4 = instance.mCustomLabel4;
-        this.mDescription = instance.mDescription;
-        this.mExpirationDate = instance.mExpirationDate;
-        this.mGender = instance.mGender;
-        this.mGtin = instance.mGtin;
-        this.mId = instance.mId;
-        this.mImageUrl = instance.mImageUrl;
-        this.mManufacturerPartNumber = instance.mManufacturerPartNumber;
-        this.mMaterial = instance.mMaterial;
-        this.mName = instance.mName;
-        this.mOrderingIndex = instance.mOrderingIndex;
-        this.mPattern = instance.mPattern;
-        this.mPrice = instance.mPrice;
-        this.mProductFeed = instance.mProductFeed;
-        this.mProductType = instance.mProductType;
-        this.mRetailerId = instance.mRetailerId;
-        this.mRetailerProductGroupId = instance.mRetailerProductGroupId;
-        this.mReviewRejectionReasons = instance.mReviewRejectionReasons;
-        this.mReviewStatus = instance.mReviewStatus;
-        this.mSalePrice = instance.mSalePrice;
-        this.mSalePriceEndDate = instance.mSalePriceEndDate;
-        this.mSalePriceStartDate = instance.mSalePriceStartDate;
-        this.mShippingWeightUnit = instance.mShippingWeightUnit;
-        this.mShippingWeightValue = instance.mShippingWeightValue;
-        this.mShortDescription = instance.mShortDescription;
-        this.mSize = instance.mSize;
-        this.mStartDate = instance.mStartDate;
-        this.mUrl = instance.mUrl;
-        this.mVisibility = instance.mVisibility;
-        this.context = instance.context;
-        this.rawValue = instance.rawValue;
-        return this;
-    }
-
-    public static APIRequest.ResponseParser<ProductItem> getParser() {
-        return new APIRequest.ResponseParser<ProductItem>() {
-            public APINodeList<ProductItem> parseResponse(String response, APIContext context, APIRequest<ProductItem> request) throws MalformedResponseException {
-                return ProductItem.parseResponse(response, context, request);
-            }
-        };
     }
 }
