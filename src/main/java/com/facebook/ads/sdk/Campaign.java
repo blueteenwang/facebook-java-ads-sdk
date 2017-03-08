@@ -34,13 +34,13 @@ import java.util.Map;
 
 /**
  * This class is auto-genereated.
- *
+ * <p>
  * For any issues or feature requests related to this class, please let us know
  * on github and we'll fix in our codegen framework. We'll not be able to accept
  * pull request for this class.
- *
  */
 public class Campaign extends APINode {
+    protected static Gson gson = null;
     @SerializedName("account_id")
     private String mAccountId = null;
     @SerializedName("adlabels")
@@ -75,7 +75,8 @@ public class Campaign extends APINode {
     private String mStopTime = null;
     @SerializedName("updated_time")
     private String mUpdatedTime = null;
-    protected static Gson gson = null;
+    @SerializedName("promoted_object")
+    private AdPromotedObject mPromotedObject = null;
 
     Campaign() {
     }
@@ -87,12 +88,6 @@ public class Campaign extends APINode {
     public Campaign(String id, APIContext context) {
         this.mId = id;
         this.context = context;
-    }
-
-    public Campaign fetch() throws APIException {
-        Campaign newInstance = fetchById(this.getPrefixedId().toString(), this.context);
-        this.copyFrom(newInstance);
-        return this;
     }
 
     public static Campaign fetchById(Long id, APIContext context) throws APIException {
@@ -114,14 +109,6 @@ public class Campaign extends APINode {
                         .requestFields(fields)
                         .execute()
         );
-    }
-
-    private String getPrefixedId() {
-        return getId();
-    }
-
-    public String getId() {
-        return getFieldId().toString();
     }
 
     public static Campaign loadJSON(String json, APIContext context) {
@@ -244,6 +231,41 @@ public class Campaign extends APINode {
         );
     }
 
+    synchronized /*package*/ static Gson getGson() {
+        if (gson != null) {
+            return gson;
+        } else {
+            gson = new GsonBuilder()
+                    .excludeFieldsWithModifiers(Modifier.STATIC)
+                    .excludeFieldsWithModifiers(Modifier.PROTECTED)
+                    .disableHtmlEscaping()
+                    .create();
+        }
+        return gson;
+    }
+
+    public static APIRequest.ResponseParser<Campaign> getParser() {
+        return new APIRequest.ResponseParser<Campaign>() {
+            public APINodeList<Campaign> parseResponse(String response, APIContext context, APIRequest<Campaign> request) throws MalformedResponseException {
+                return Campaign.parseResponse(response, context, request);
+            }
+        };
+    }
+
+    public Campaign fetch() throws APIException {
+        Campaign newInstance = fetchById(this.getPrefixedId().toString(), this.context);
+        this.copyFrom(newInstance);
+        return this;
+    }
+
+    private String getPrefixedId() {
+        return getId();
+    }
+
+    public String getId() {
+        return getFieldId().toString();
+    }
+
     @Override
     public APIContext getContext() {
         return context;
@@ -295,9 +317,12 @@ public class Campaign extends APINode {
         return new APIRequestUpdate(this.getPrefixedId().toString(), context);
     }
 
-
     public String getFieldAccountId() {
         return mAccountId;
+    }
+
+    public AdPromotedObject getFieldPromotedObject() {
+        return this.mPromotedObject;
     }
 
     public List<AdLabel> getFieldAdlabels() {
@@ -364,23 +389,281 @@ public class Campaign extends APINode {
         return mUpdatedTime;
     }
 
+    public Campaign copyFrom(Campaign instance) {
+        this.mAccountId = instance.mAccountId;
+        this.mAdlabels = instance.mAdlabels;
+        this.mBudgetRebalanceFlag = instance.mBudgetRebalanceFlag;
+        this.mBuyingType = instance.mBuyingType;
+        this.mCanUseSpendCap = instance.mCanUseSpendCap;
+        this.mConfiguredStatus = instance.mConfiguredStatus;
+        this.mCreatedTime = instance.mCreatedTime;
+        this.mEffectiveStatus = instance.mEffectiveStatus;
+        this.mId = instance.mId;
+        this.mName = instance.mName;
+        this.mObjective = instance.mObjective;
+        this.mRecommendations = instance.mRecommendations;
+        this.mSpendCap = instance.mSpendCap;
+        this.mStartTime = instance.mStartTime;
+        this.mStatus = instance.mStatus;
+        this.mStopTime = instance.mStopTime;
+        this.mUpdatedTime = instance.mUpdatedTime;
+        this.context = instance.context;
+        this.rawValue = instance.rawValue;
+        return this;
+    }
 
-    public static class APIRequestDeleteAdLabels extends APIRequest<APINode> {
+    public static enum EnumConfiguredStatus {
+        @SerializedName("ACTIVE")
+        VALUE_ACTIVE("ACTIVE"),
+        @SerializedName("PAUSED")
+        VALUE_PAUSED("PAUSED"),
+        @SerializedName("DELETED")
+        VALUE_DELETED("DELETED"),
+        @SerializedName("ARCHIVED")
+        VALUE_ARCHIVED("ARCHIVED"),
+        NULL(null);
 
-        APINodeList<APINode> lastResponse = null;
+        private String value;
+
+        private EnumConfiguredStatus(String value) {
+            this.value = value;
+        }
 
         @Override
-        public APINodeList<APINode> getLastResponse() {
-            return lastResponse;
+        public String toString() {
+            return value;
         }
+    }
+
+    public static enum EnumEffectiveStatus {
+        @SerializedName("ACTIVE")
+        VALUE_ACTIVE("ACTIVE"),
+        @SerializedName("PAUSED")
+        VALUE_PAUSED("PAUSED"),
+        @SerializedName("DELETED")
+        VALUE_DELETED("DELETED"),
+        @SerializedName("PENDING_REVIEW")
+        VALUE_PENDING_REVIEW("PENDING_REVIEW"),
+        @SerializedName("DISAPPROVED")
+        VALUE_DISAPPROVED("DISAPPROVED"),
+        @SerializedName("PREAPPROVED")
+        VALUE_PREAPPROVED("PREAPPROVED"),
+        @SerializedName("PENDING_BILLING_INFO")
+        VALUE_PENDING_BILLING_INFO("PENDING_BILLING_INFO"),
+        @SerializedName("CAMPAIGN_PAUSED")
+        VALUE_CAMPAIGN_PAUSED("CAMPAIGN_PAUSED"),
+        @SerializedName("ARCHIVED")
+        VALUE_ARCHIVED("ARCHIVED"),
+        @SerializedName("ADSET_PAUSED")
+        VALUE_ADSET_PAUSED("ADSET_PAUSED"),
+        NULL(null);
+
+        private String value;
+
+        private EnumEffectiveStatus(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumStatus {
+        @SerializedName("ACTIVE")
+        VALUE_ACTIVE("ACTIVE"),
+        @SerializedName("PAUSED")
+        VALUE_PAUSED("PAUSED"),
+        @SerializedName("DELETED")
+        VALUE_DELETED("DELETED"),
+        @SerializedName("ARCHIVED")
+        VALUE_ARCHIVED("ARCHIVED"),
+        NULL(null);
+
+        private String value;
+
+        private EnumStatus(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumDatePreset {
+        @SerializedName("today")
+        VALUE_TODAY("today"),
+        @SerializedName("yesterday")
+        VALUE_YESTERDAY("yesterday"),
+        @SerializedName("last_3_days")
+        VALUE_LAST_3_DAYS("last_3_days"),
+        @SerializedName("this_week")
+        VALUE_THIS_WEEK("this_week"),
+        @SerializedName("last_week")
+        VALUE_LAST_WEEK("last_week"),
+        @SerializedName("last_7_days")
+        VALUE_LAST_7_DAYS("last_7_days"),
+        @SerializedName("last_14_days")
+        VALUE_LAST_14_DAYS("last_14_days"),
+        @SerializedName("last_28_days")
+        VALUE_LAST_28_DAYS("last_28_days"),
+        @SerializedName("last_30_days")
+        VALUE_LAST_30_DAYS("last_30_days"),
+        @SerializedName("last_90_days")
+        VALUE_LAST_90_DAYS("last_90_days"),
+        @SerializedName("this_month")
+        VALUE_THIS_MONTH("this_month"),
+        @SerializedName("last_month")
+        VALUE_LAST_MONTH("last_month"),
+        @SerializedName("this_quarter")
+        VALUE_THIS_QUARTER("this_quarter"),
+        @SerializedName("last_3_months")
+        VALUE_LAST_3_MONTHS("last_3_months"),
+        @SerializedName("lifetime")
+        VALUE_LIFETIME("lifetime"),
+        NULL(null);
+
+        private String value;
+
+        private EnumDatePreset(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumDeleteStrategy {
+        @SerializedName("DELETE_ANY")
+        VALUE_DELETE_ANY("DELETE_ANY"),
+        @SerializedName("DELETE_OLDEST")
+        VALUE_DELETE_OLDEST("DELETE_OLDEST"),
+        @SerializedName("DELETE_ARCHIVED_BEFORE")
+        VALUE_DELETE_ARCHIVED_BEFORE("DELETE_ARCHIVED_BEFORE"),
+        NULL(null);
+
+        private String value;
+
+        private EnumDeleteStrategy(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumExecutionOptions {
+        @SerializedName("validate_only")
+        VALUE_VALIDATE_ONLY("validate_only"),
+        @SerializedName("include_recommendations")
+        VALUE_INCLUDE_RECOMMENDATIONS("include_recommendations"),
+        NULL(null);
+
+        private String value;
+
+        private EnumExecutionOptions(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumObjective {
+        @SerializedName("BRAND_AWARENESS")
+        VALUE_BRAND_AWARENESS("BRAND_AWARENESS"),
+        @SerializedName("CANVAS_APP_ENGAGEMENT")
+        VALUE_CANVAS_APP_ENGAGEMENT("CANVAS_APP_ENGAGEMENT"),
+        @SerializedName("CANVAS_APP_INSTALLS")
+        VALUE_CANVAS_APP_INSTALLS("CANVAS_APP_INSTALLS"),
+        @SerializedName("CONVERSIONS")
+        VALUE_CONVERSIONS("CONVERSIONS"),
+        @SerializedName("EVENT_RESPONSES")
+        VALUE_EVENT_RESPONSES("EVENT_RESPONSES"),
+        @SerializedName("EXTERNAL")
+        VALUE_EXTERNAL("EXTERNAL"),
+        @SerializedName("LEAD_GENERATION")
+        VALUE_LEAD_GENERATION("LEAD_GENERATION"),
+        @SerializedName("LINK_CLICKS")
+        VALUE_LINK_CLICKS("LINK_CLICKS"),
+        @SerializedName("LOCAL_AWARENESS")
+        VALUE_LOCAL_AWARENESS("LOCAL_AWARENESS"),
+        @SerializedName("MOBILE_APP_ENGAGEMENT")
+        VALUE_MOBILE_APP_ENGAGEMENT("MOBILE_APP_ENGAGEMENT"),
+        @SerializedName("MOBILE_APP_INSTALLS")
+        VALUE_MOBILE_APP_INSTALLS("MOBILE_APP_INSTALLS"),
+        @SerializedName("OFFER_CLAIMS")
+        VALUE_OFFER_CLAIMS("OFFER_CLAIMS"),
+        @SerializedName("PAGE_LIKES")
+        VALUE_PAGE_LIKES("PAGE_LIKES"),
+        @SerializedName("POST_ENGAGEMENT")
+        VALUE_POST_ENGAGEMENT("POST_ENGAGEMENT"),
+        @SerializedName("PRODUCT_CATALOG_SALES")
+        VALUE_PRODUCT_CATALOG_SALES("PRODUCT_CATALOG_SALES"),
+        @SerializedName("REACH")
+        VALUE_REACH("REACH"),
+        @SerializedName("VIDEO_VIEWS")
+        VALUE_VIDEO_VIEWS("VIDEO_VIEWS"),
+        NULL(null);
+
+        private String value;
+
+        private EnumObjective(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static enum EnumOperator {
+        @SerializedName("ALL")
+        VALUE_ALL("ALL"),
+        @SerializedName("ANY")
+        VALUE_ANY("ANY"),
+        NULL(null);
+
+        private String value;
+
+        private EnumOperator(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    public static class APIRequestDeleteAdLabels extends APIRequest<APINode> {
 
         public static final String[] PARAMS = {
                 "adlabels",
                 "execution_options",
         };
-
         public static final String[] FIELDS = {
         };
+        APINodeList<APINode> lastResponse = null;
+
+        public APIRequestDeleteAdLabels(String nodeId, APIContext context) {
+            super(context, nodeId, "/adlabels", "DELETE", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public APINodeList<APINode> getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public APINodeList<APINode> parseResponse(String response) throws APIException {
@@ -396,10 +679,6 @@ public class Campaign extends APINode {
         public APINodeList<APINode> execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestDeleteAdLabels(String nodeId, APIContext context) {
-            super(context, nodeId, "/adlabels", "DELETE", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -475,20 +754,22 @@ public class Campaign extends APINode {
 
     public static class APIRequestCreateAdLabel extends APIRequest<AdLabel> {
 
+        public static final String[] PARAMS = {
+                "adlabels",
+                "execution_options",
+        };
+        public static final String[] FIELDS = {
+        };
         AdLabel lastResponse = null;
+
+        public APIRequestCreateAdLabel(String nodeId, APIContext context) {
+            super(context, nodeId, "/adlabels", "POST", Arrays.asList(PARAMS));
+        }
 
         @Override
         public AdLabel getLastResponse() {
             return lastResponse;
         }
-
-        public static final String[] PARAMS = {
-                "adlabels",
-                "execution_options",
-        };
-
-        public static final String[] FIELDS = {
-        };
 
         @Override
         public AdLabel parseResponse(String response) throws APIException {
@@ -504,10 +785,6 @@ public class Campaign extends APINode {
         public AdLabel execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestCreateAdLabel(String nodeId, APIContext context) {
-            super(context, nodeId, "/adlabels", "POST", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -583,13 +860,6 @@ public class Campaign extends APINode {
 
     public static class APIRequestGetAds extends APIRequest<Ad> {
 
-        APINodeList<Ad> lastResponse = null;
-
-        @Override
-        public APINodeList<Ad> getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "ad_draft_id",
                 "date_preset",
@@ -598,7 +868,6 @@ public class Campaign extends APINode {
                 "time_range",
                 "updated_since",
         };
-
         public static final String[] FIELDS = {
                 "account_id",
                 "ad_review_feedback",
@@ -623,6 +892,16 @@ public class Campaign extends APINode {
                 "tracking_specs",
                 "updated_time",
         };
+        APINodeList<Ad> lastResponse = null;
+
+        public APIRequestGetAds(String nodeId, APIContext context) {
+            super(context, nodeId, "/ads", "GET", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public APINodeList<Ad> getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public APINodeList<Ad> parseResponse(String response) throws APIException {
@@ -638,10 +917,6 @@ public class Campaign extends APINode {
         public APINodeList<Ad> execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGetAds(String nodeId, APIContext context) {
-            super(context, nodeId, "/ads", "GET", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -949,13 +1224,6 @@ public class Campaign extends APINode {
 
     public static class APIRequestGetAdSets extends APIRequest<AdSet> {
 
-        APINodeList<AdSet> lastResponse = null;
-
-        @Override
-        public APINodeList<AdSet> getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "ad_draft_id",
                 "date_preset",
@@ -963,7 +1231,6 @@ public class Campaign extends APINode {
                 "is_completed",
                 "time_range",
         };
-
         public static final String[] FIELDS = {
                 "account_id",
                 "adlabels",
@@ -1006,6 +1273,16 @@ public class Campaign extends APINode {
                 "updated_time",
                 "use_new_app_click",
         };
+        APINodeList<AdSet> lastResponse = null;
+
+        public APIRequestGetAdSets(String nodeId, APIContext context) {
+            super(context, nodeId, "/adsets", "GET", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public APINodeList<AdSet> getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public APINodeList<AdSet> parseResponse(String response) throws APIException {
@@ -1021,10 +1298,6 @@ public class Campaign extends APINode {
         public APINodeList<AdSet> execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGetAdSets(String nodeId, APIContext context) {
-            super(context, nodeId, "/adsets", "GET", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -1484,13 +1757,6 @@ public class Campaign extends APINode {
 
     public static class APIRequestGetInsights extends APIRequest<AdsInsights> {
 
-        APINodeList<AdsInsights> lastResponse = null;
-
-        @Override
-        public APINodeList<AdsInsights> getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "action_attribution_windows",
                 "action_breakdowns",
@@ -1512,9 +1778,18 @@ public class Campaign extends APINode {
                 "time_range",
                 "time_ranges",
         };
-
         public static final String[] FIELDS = {
         };
+        APINodeList<AdsInsights> lastResponse = null;
+
+        public APIRequestGetInsights(String nodeId, APIContext context) {
+            super(context, nodeId, "/insights", "GET", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public APINodeList<AdsInsights> getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public APINodeList<AdsInsights> parseResponse(String response) throws APIException {
@@ -1530,10 +1805,6 @@ public class Campaign extends APINode {
         public APINodeList<AdsInsights> execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGetInsights(String nodeId, APIContext context) {
-            super(context, nodeId, "/insights", "GET", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -1764,13 +2035,6 @@ public class Campaign extends APINode {
 
     public static class APIRequestGetInsightsAsync extends APIRequest<AdReportRun> {
 
-        APINodeList<AdReportRun> lastResponse = null;
-
-        @Override
-        public APINodeList<AdReportRun> getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "action_attribution_windows",
                 "action_breakdowns",
@@ -1792,9 +2056,18 @@ public class Campaign extends APINode {
                 "time_range",
                 "time_ranges",
         };
-
         public static final String[] FIELDS = {
         };
+        APINodeList<AdReportRun> lastResponse = null;
+
+        public APIRequestGetInsightsAsync(String nodeId, APIContext context) {
+            super(context, nodeId, "/insights", "POST", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public APINodeList<AdReportRun> getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public APINodeList<AdReportRun> parseResponse(String response) throws APIException {
@@ -1810,10 +2083,6 @@ public class Campaign extends APINode {
         public APINodeList<AdReportRun> execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGetInsightsAsync(String nodeId, APIContext context) {
-            super(context, nodeId, "/insights", "POST", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -2044,18 +2313,20 @@ public class Campaign extends APINode {
 
     public static class APIRequestDelete extends APIRequest<APINode> {
 
+        public static final String[] PARAMS = {
+        };
+        public static final String[] FIELDS = {
+        };
         APINode lastResponse = null;
+
+        public APIRequestDelete(String nodeId, APIContext context) {
+            super(context, nodeId, "/", "DELETE", Arrays.asList(PARAMS));
+        }
 
         @Override
         public APINode getLastResponse() {
             return lastResponse;
         }
-
-        public static final String[] PARAMS = {
-        };
-
-        public static final String[] FIELDS = {
-        };
 
         @Override
         public APINode parseResponse(String response) throws APIException {
@@ -2071,10 +2342,6 @@ public class Campaign extends APINode {
         public APINode execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestDelete(String nodeId, APIContext context) {
-            super(context, nodeId, "/", "DELETE", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -2130,16 +2397,8 @@ public class Campaign extends APINode {
 
     public static class APIRequestGet extends APIRequest<Campaign> {
 
-        Campaign lastResponse = null;
-
-        @Override
-        public Campaign getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
         };
-
         public static final String[] FIELDS = {
                 "account_id",
                 "adlabels",
@@ -2159,6 +2418,16 @@ public class Campaign extends APINode {
                 "stop_time",
                 "updated_time",
         };
+        Campaign lastResponse = null;
+
+        public APIRequestGet(String nodeId, APIContext context) {
+            super(context, nodeId, "/", "GET", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public Campaign getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public Campaign parseResponse(String response) throws APIException {
@@ -2174,10 +2443,6 @@ public class Campaign extends APINode {
         public Campaign execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestGet(String nodeId, APIContext context) {
-            super(context, nodeId, "/", "GET", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -2385,13 +2650,6 @@ public class Campaign extends APINode {
 
     public static class APIRequestUpdate extends APIRequest<Campaign> {
 
-        Campaign lastResponse = null;
-
-        @Override
-        public Campaign getLastResponse() {
-            return lastResponse;
-        }
-
         public static final String[] PARAMS = {
                 "adlabels",
                 "budget_rebalance_flag",
@@ -2402,9 +2660,18 @@ public class Campaign extends APINode {
                 "spend_cap",
                 "status",
         };
-
         public static final String[] FIELDS = {
         };
+        Campaign lastResponse = null;
+
+        public APIRequestUpdate(String nodeId, APIContext context) {
+            super(context, nodeId, "/", "POST", Arrays.asList(PARAMS));
+        }
+
+        @Override
+        public Campaign getLastResponse() {
+            return lastResponse;
+        }
 
         @Override
         public Campaign parseResponse(String response) throws APIException {
@@ -2420,10 +2687,6 @@ public class Campaign extends APINode {
         public Campaign execute(Map<String, Object> extraParams) throws APIException {
             lastResponse = parseResponse(executeInternal(extraParams));
             return lastResponse;
-        }
-
-        public APIRequestUpdate(String nodeId, APIContext context) {
-            super(context, nodeId, "/", "POST", Arrays.asList(PARAMS));
         }
 
         @Override
@@ -2550,284 +2813,5 @@ public class Campaign extends APINode {
             return this;
         }
 
-    }
-
-    public static enum EnumConfiguredStatus {
-        @SerializedName("ACTIVE")
-        VALUE_ACTIVE("ACTIVE"),
-        @SerializedName("PAUSED")
-        VALUE_PAUSED("PAUSED"),
-        @SerializedName("DELETED")
-        VALUE_DELETED("DELETED"),
-        @SerializedName("ARCHIVED")
-        VALUE_ARCHIVED("ARCHIVED"),
-        NULL(null);
-
-        private String value;
-
-        private EnumConfiguredStatus(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumEffectiveStatus {
-        @SerializedName("ACTIVE")
-        VALUE_ACTIVE("ACTIVE"),
-        @SerializedName("PAUSED")
-        VALUE_PAUSED("PAUSED"),
-        @SerializedName("DELETED")
-        VALUE_DELETED("DELETED"),
-        @SerializedName("PENDING_REVIEW")
-        VALUE_PENDING_REVIEW("PENDING_REVIEW"),
-        @SerializedName("DISAPPROVED")
-        VALUE_DISAPPROVED("DISAPPROVED"),
-        @SerializedName("PREAPPROVED")
-        VALUE_PREAPPROVED("PREAPPROVED"),
-        @SerializedName("PENDING_BILLING_INFO")
-        VALUE_PENDING_BILLING_INFO("PENDING_BILLING_INFO"),
-        @SerializedName("CAMPAIGN_PAUSED")
-        VALUE_CAMPAIGN_PAUSED("CAMPAIGN_PAUSED"),
-        @SerializedName("ARCHIVED")
-        VALUE_ARCHIVED("ARCHIVED"),
-        @SerializedName("ADSET_PAUSED")
-        VALUE_ADSET_PAUSED("ADSET_PAUSED"),
-        NULL(null);
-
-        private String value;
-
-        private EnumEffectiveStatus(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumStatus {
-        @SerializedName("ACTIVE")
-        VALUE_ACTIVE("ACTIVE"),
-        @SerializedName("PAUSED")
-        VALUE_PAUSED("PAUSED"),
-        @SerializedName("DELETED")
-        VALUE_DELETED("DELETED"),
-        @SerializedName("ARCHIVED")
-        VALUE_ARCHIVED("ARCHIVED"),
-        NULL(null);
-
-        private String value;
-
-        private EnumStatus(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumDatePreset {
-        @SerializedName("today")
-        VALUE_TODAY("today"),
-        @SerializedName("yesterday")
-        VALUE_YESTERDAY("yesterday"),
-        @SerializedName("last_3_days")
-        VALUE_LAST_3_DAYS("last_3_days"),
-        @SerializedName("this_week")
-        VALUE_THIS_WEEK("this_week"),
-        @SerializedName("last_week")
-        VALUE_LAST_WEEK("last_week"),
-        @SerializedName("last_7_days")
-        VALUE_LAST_7_DAYS("last_7_days"),
-        @SerializedName("last_14_days")
-        VALUE_LAST_14_DAYS("last_14_days"),
-        @SerializedName("last_28_days")
-        VALUE_LAST_28_DAYS("last_28_days"),
-        @SerializedName("last_30_days")
-        VALUE_LAST_30_DAYS("last_30_days"),
-        @SerializedName("last_90_days")
-        VALUE_LAST_90_DAYS("last_90_days"),
-        @SerializedName("this_month")
-        VALUE_THIS_MONTH("this_month"),
-        @SerializedName("last_month")
-        VALUE_LAST_MONTH("last_month"),
-        @SerializedName("this_quarter")
-        VALUE_THIS_QUARTER("this_quarter"),
-        @SerializedName("last_3_months")
-        VALUE_LAST_3_MONTHS("last_3_months"),
-        @SerializedName("lifetime")
-        VALUE_LIFETIME("lifetime"),
-        NULL(null);
-
-        private String value;
-
-        private EnumDatePreset(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumDeleteStrategy {
-        @SerializedName("DELETE_ANY")
-        VALUE_DELETE_ANY("DELETE_ANY"),
-        @SerializedName("DELETE_OLDEST")
-        VALUE_DELETE_OLDEST("DELETE_OLDEST"),
-        @SerializedName("DELETE_ARCHIVED_BEFORE")
-        VALUE_DELETE_ARCHIVED_BEFORE("DELETE_ARCHIVED_BEFORE"),
-        NULL(null);
-
-        private String value;
-
-        private EnumDeleteStrategy(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumExecutionOptions {
-        @SerializedName("validate_only")
-        VALUE_VALIDATE_ONLY("validate_only"),
-        @SerializedName("include_recommendations")
-        VALUE_INCLUDE_RECOMMENDATIONS("include_recommendations"),
-        NULL(null);
-
-        private String value;
-
-        private EnumExecutionOptions(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumObjective {
-        @SerializedName("BRAND_AWARENESS")
-        VALUE_BRAND_AWARENESS("BRAND_AWARENESS"),
-        @SerializedName("CANVAS_APP_ENGAGEMENT")
-        VALUE_CANVAS_APP_ENGAGEMENT("CANVAS_APP_ENGAGEMENT"),
-        @SerializedName("CANVAS_APP_INSTALLS")
-        VALUE_CANVAS_APP_INSTALLS("CANVAS_APP_INSTALLS"),
-        @SerializedName("CONVERSIONS")
-        VALUE_CONVERSIONS("CONVERSIONS"),
-        @SerializedName("EVENT_RESPONSES")
-        VALUE_EVENT_RESPONSES("EVENT_RESPONSES"),
-        @SerializedName("EXTERNAL")
-        VALUE_EXTERNAL("EXTERNAL"),
-        @SerializedName("LEAD_GENERATION")
-        VALUE_LEAD_GENERATION("LEAD_GENERATION"),
-        @SerializedName("LINK_CLICKS")
-        VALUE_LINK_CLICKS("LINK_CLICKS"),
-        @SerializedName("LOCAL_AWARENESS")
-        VALUE_LOCAL_AWARENESS("LOCAL_AWARENESS"),
-        @SerializedName("MOBILE_APP_ENGAGEMENT")
-        VALUE_MOBILE_APP_ENGAGEMENT("MOBILE_APP_ENGAGEMENT"),
-        @SerializedName("MOBILE_APP_INSTALLS")
-        VALUE_MOBILE_APP_INSTALLS("MOBILE_APP_INSTALLS"),
-        @SerializedName("OFFER_CLAIMS")
-        VALUE_OFFER_CLAIMS("OFFER_CLAIMS"),
-        @SerializedName("PAGE_LIKES")
-        VALUE_PAGE_LIKES("PAGE_LIKES"),
-        @SerializedName("POST_ENGAGEMENT")
-        VALUE_POST_ENGAGEMENT("POST_ENGAGEMENT"),
-        @SerializedName("PRODUCT_CATALOG_SALES")
-        VALUE_PRODUCT_CATALOG_SALES("PRODUCT_CATALOG_SALES"),
-        @SerializedName("REACH")
-        VALUE_REACH("REACH"),
-        @SerializedName("VIDEO_VIEWS")
-        VALUE_VIDEO_VIEWS("VIDEO_VIEWS"),
-        NULL(null);
-
-        private String value;
-
-        private EnumObjective(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-    public static enum EnumOperator {
-        @SerializedName("ALL")
-        VALUE_ALL("ALL"),
-        @SerializedName("ANY")
-        VALUE_ANY("ANY"),
-        NULL(null);
-
-        private String value;
-
-        private EnumOperator(String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
-    }
-
-
-    synchronized /*package*/ static Gson getGson() {
-        if (gson != null) {
-            return gson;
-        } else {
-            gson = new GsonBuilder()
-                    .excludeFieldsWithModifiers(Modifier.STATIC)
-                    .excludeFieldsWithModifiers(Modifier.PROTECTED)
-                    .disableHtmlEscaping()
-                    .create();
-        }
-        return gson;
-    }
-
-    public Campaign copyFrom(Campaign instance) {
-        this.mAccountId = instance.mAccountId;
-        this.mAdlabels = instance.mAdlabels;
-        this.mBudgetRebalanceFlag = instance.mBudgetRebalanceFlag;
-        this.mBuyingType = instance.mBuyingType;
-        this.mCanUseSpendCap = instance.mCanUseSpendCap;
-        this.mConfiguredStatus = instance.mConfiguredStatus;
-        this.mCreatedTime = instance.mCreatedTime;
-        this.mEffectiveStatus = instance.mEffectiveStatus;
-        this.mId = instance.mId;
-        this.mName = instance.mName;
-        this.mObjective = instance.mObjective;
-        this.mRecommendations = instance.mRecommendations;
-        this.mSpendCap = instance.mSpendCap;
-        this.mStartTime = instance.mStartTime;
-        this.mStatus = instance.mStatus;
-        this.mStopTime = instance.mStopTime;
-        this.mUpdatedTime = instance.mUpdatedTime;
-        this.context = instance.context;
-        this.rawValue = instance.rawValue;
-        return this;
-    }
-
-    public static APIRequest.ResponseParser<Campaign> getParser() {
-        return new APIRequest.ResponseParser<Campaign>() {
-            public APINodeList<Campaign> parseResponse(String response, APIContext context, APIRequest<Campaign> request) throws MalformedResponseException {
-                return Campaign.parseResponse(response, context, request);
-            }
-        };
     }
 }
