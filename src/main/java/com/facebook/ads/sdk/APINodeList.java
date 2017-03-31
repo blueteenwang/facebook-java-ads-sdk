@@ -21,6 +21,7 @@
  */
 package com.facebook.ads.sdk;
 
+import com.facebook.ads.utils.QueryParameterUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -31,6 +32,10 @@ import java.util.Map;
 public class APINodeList<T extends APINode> extends ArrayList<T> implements APIResponse {
     private String before;
     private String after;
+
+    private String afterId;
+    private Integer offset;
+    private Integer limit;
     private APIRequest<T> request;
     private String rawValue;
 
@@ -44,10 +49,23 @@ public class APINodeList<T extends APINode> extends ArrayList<T> implements APIR
     }
 
     public APINodeList<T> nextPage(int limit) throws APIException {
-        if (after == null) return null;
+        if (after == null && afterId == null) {
+            return null;
+        }
         Map<String, Object> extraParams = new HashMap<String, Object>();
-        if (limit > 0) extraParams.put("limit", limit);
-        extraParams.put("after", after);
+        if (limit > 0) {
+            this.limit = limit;
+        }
+
+        if (this.limit != null) {
+            extraParams.put("limit", this.limit);
+        }
+        if (this.after != null) {
+            extraParams.put("after", after);
+        } else if (this.afterId != null && this.offset != null) {
+            extraParams.put("__after_id", afterId);
+            extraParams.put("offset", this.offset);
+        }
         return (APINodeList<T>) request.execute(extraParams);
     }
 
@@ -62,8 +80,18 @@ public class APINodeList<T extends APINode> extends ArrayList<T> implements APIR
             if (paging.has("cursors") && paging.get("cursors").isJsonObject()) {
                 paging = paging.get("cursors").getAsJsonObject();
             }
-            this.before = paging.has("before") ? paging.get("before").getAsString() : null;
-            this.after = paging.has("after") ? paging.get("after").getAsString() : null;
+
+            if (paging.has("next")) {
+                Map<String, String> queryParam = QueryParameterUtil.getQueryMap(paging.get("next").getAsString());
+                if (queryParam.containsKey("__after_id")) {
+                    this.afterId = queryParam.get("__after_id");
+                    this.offset = Integer.valueOf(queryParam.get("offset"));
+                    this.limit = Integer.valueOf(queryParam.get("limit"));
+                }
+            } else {
+                this.before = paging.has("before") ? paging.get("before").getAsString() : null;
+                this.after = paging.has("after") ? paging.get("after").getAsString() : null;
+            }
         }
     }
 
@@ -73,6 +101,14 @@ public class APINodeList<T extends APINode> extends ArrayList<T> implements APIR
 
     public String getAfter() {
         return after;
+    }
+
+    public String getAfterId() {
+        return afterId;
+    }
+
+    public Integer getOffset() {
+        return offset;
     }
 
     @Override
