@@ -3142,7 +3142,6 @@ public class AdAccount extends APINode {
                 "async_status",
                 "date_start",
                 "date_stop",
-                "emails",
                 "friendly_name",
                 "id",
                 "is_bookmarked",
